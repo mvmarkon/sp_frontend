@@ -6,6 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number): string {
+  // Add the currency symbol and format the number
   return new Intl.NumberFormat("es-CO", {
     style: "currency",
     currency: "COP",
@@ -13,6 +14,7 @@ export function formatCurrency(amount: number): string {
 }
 
 export function formatDate(date: string): string {
+  // Format the date to "day month year"
   return new Intl.DateTimeFormat("es-CO", {
     year: "numeric",
     month: "short",
