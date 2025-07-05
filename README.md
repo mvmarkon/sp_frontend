@@ -53,7 +53,7 @@ cp .env.example .env
 
 Editar el archivo `.env`:
 \`\`\`env
-VITE_API_BASE_URL=http://127.0.0.1:8000/api
+VITE_API_BASE_URL=http://localhost:8000/api
 VITE_APP_NAME=SanPedrito
 \`\`\`
 
@@ -163,15 +163,32 @@ La aplicación se conecta a los siguientes endpoints:
 ## 🚀 Despliegue
 
 ### Desarrollo
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
 ### Producción
-\`\`\`bash
+```bash
 npm run build
 npm run preview
-\`\`\`
+```
+
+### Docker
+```bash
+# Construir la imagen de Docker
+docker-compose build
+
+# Iniciar los contenedores
+docker-compose up -d
+
+# Detener los contenedores
+docker-compose down
+```
+
+### Variables de Entorno para Docker
+```env
+VITE_API_BASE_URL=http://localhost:8000/api
+```
 
 ### Variables de Entorno para Producción
 \`\`\`env
