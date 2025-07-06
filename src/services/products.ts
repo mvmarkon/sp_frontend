@@ -17,13 +17,7 @@ export const productsService = {
     return response.data
   },
 
-  async createProduct(data: ProductFormData): Promise<Product> {
-    const formData = new FormData()
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, value.toString())
-      }
-    })
+  async createProduct(formData: FormData): Promise<Product> {
 
     const response = await api.post("/products/", formData, {
       headers: {
@@ -33,13 +27,7 @@ export const productsService = {
     return response.data
   },
 
-  async updateProduct(id: number, data: Partial<ProductFormData>): Promise<Product> {
-    const formData = new FormData()
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        formData.append(key, value.toString())
-      }
-    })
+  async updateProduct(id: number, formData: FormData): Promise<Product> {
 
     const response = await api.patch(`/products/${id}/`, formData, {
       headers: {

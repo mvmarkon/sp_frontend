@@ -25,7 +25,9 @@ export interface Product {
   stock: number
   min_stock: number
   is_active: boolean
-  image?: string
+  size: string;
+  color: string;
+  image?: string;
   created_at: string
   updated_at: string
 }
@@ -39,7 +41,9 @@ export interface ProductFormData {
   stock: number
   min_stock: number
   is_active: boolean
-  image?: File
+  size: string;
+  color: string;
+  image?: File;
 }
 
 export interface CategoryFormData {

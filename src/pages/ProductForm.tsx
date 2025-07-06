@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loading } from "@/components/ui/loading"
 import { productsService } from "../services/products"
 import { categoriesService } from "../services/categories"
-import type { ProductFormData, Category } from "../types"
+import type { ProductFormData, Category, Product } from "../types"
 import toast from "react-hot-toast"
 
 export function ProductForm() {
@@ -19,6 +19,7 @@ export function ProductForm() {
   const isEditing = Boolean(id)
 
   const [categories, setCategories] = useState<Category[]>([])
+  const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -49,15 +50,19 @@ export function ProductForm() {
 
       // Si estamos editando, cargar el producto
       if (isEditing && id) {
-        const product = await productsService.getProduct(Number(id))
-        setValue("name", product.name)
-        setValue("description", product.description)
-        setValue("sku", product.sku)
-        setValue("category_id", product.category.id)
-        setValue("price", product.price)
-        setValue("stock", product.stock)
-        setValue("min_stock", product.min_stock)
-        setValue("is_active", product.is_active)
+        const fetchedProduct = await productsService.getProduct(Number(id));
+        setProduct(fetchedProduct);
+        setValue("name", fetchedProduct.name);
+        setValue("description", fetchedProduct.description);
+        setValue("sku", fetchedProduct.sku);
+        setValue("category_id", fetchedProduct.category.id);
+        setValue("price", fetchedProduct.price);
+        setValue("stock", fetchedProduct.stock);
+        setValue("min_stock", fetchedProduct.min_stock);
+        setValue("is_active", fetchedProduct.is_active);
+        setValue("size", fetchedProduct.size);
+        setValue("color", fetchedProduct.color);
+        // No pre-filling for image input, as it's a file input
       }
     } catch (error) {
       toast.error("Error al cargar los datos")
@@ -71,19 +76,28 @@ export function ProductForm() {
     try {
       setIsSubmitting(true)
 
-      if (isEditing && id) {
-        await productsService.updateProduct(Number(id), data)
-        toast.success("Producto actualizado correctamente")
-      } else {
-        await productsService.createProduct(data)
-        toast.success("Producto creado correctamente")
+      const formData = new FormData();
+      for (const [key, value] of Object.entries(data)) {
+        if (key === "image" && value instanceof FileList && value.length > 0) {
+          formData.append(key, value[0]);
+        } else if (key !== "image" && value !== undefined && value !== null) {
+          formData.append(key, String(value));
+        }
       }
 
-      navigate("/products")
+      if (isEditing && id) {
+        await productsService.updateProduct(Number(id), formData);
+        toast.success("Producto actualizado correctamente");
+      } else {
+        await productsService.createProduct(formData);
+        toast.success("Producto creado correctamente");
+      }
+
+      navigate("/products");
     } catch (error) {
-      toast.error("Error al guardar el producto")
+      toast.error("Error al guardar el producto");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
@@ -152,9 +166,8 @@ export function ProductForm() {
                         required: "La categoría es requerida",
                         valueAsNumber: true,
                       })}
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        errors.category_id ? "border-red-500" : "border-gray-300"
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.category_id ? "border-red-500" : "border-gray-300"
+                        }`}
                     >
                       <option value="">Selecciona una categoría</option>
                       {categories.map((category) => (
@@ -166,6 +179,68 @@ export function ProductForm() {
                     {errors.category_id && <p className="text-red-500 text-xs mt-1">{errors.category_id.message}</p>}
                   </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Talla *</label>
+                    <Input
+                      {...register("size", { required: "La talla es requerida" })}
+                      className={errors.size ? "border-red-500" : ""}
+                      placeholder="Ej: S, M, L, XL"
+                    />
+                    {errors.size && <p className="text-red-500 text-xs mt-1">{errors.size.message}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Color *</label>
+                    <Input
+                      {...register("color", { required: "El color es requerido" })}
+                      className={errors.color ? "border-red-500" : ""}
+                      placeholder="Ej: Rojo, Azul, Negro"
+                    />
+                    {errors.color && <p className="text-red-500 text-xs mt-1">{errors.color.message}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Talla *</label>
+                    <Input
+                      {...register("size", { required: "La talla es requerida" })}
+                      className={errors.size ? "border-red-500" : ""}
+                      placeholder="Ej: S, M, L, XL"
+                    />
+                    {errors.size && <p className="text-red-500 text-xs mt-1">{errors.size.message}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Color *</label>
+                    <Input
+                      {...register("color", { required: "El color es requerido" })}
+                      className={errors.color ? "border-red-500" : ""}
+                      placeholder="Ej: Rojo, Azul, Negro"
+                    />
+                    {errors.color && <p className="text-red-500 text-xs mt-1">{errors.color.message}</p>}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Imagen del Producto</label>
+                  <Input
+                    type="file"
+                    {...register("image")}
+                    className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                    accept="image/*"
+                  />
+                  {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image.message}</p>}
+                </div>
+
+                {isEditing && product && product.image && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Imagen Actual</label>
+                    <img src={product.image} alt="Current Product" className="w-32 h-32 object-cover rounded-md" />
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
